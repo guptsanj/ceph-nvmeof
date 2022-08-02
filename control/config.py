@@ -10,7 +10,7 @@
 import rados
 from typing import Dict, Optional
 from abc import ABC, abstractmethod
-import nvme_gw_pb2 as pb2
+from .proto import gateway_pb2 as pb2
 from google.protobuf import json_format
 
 

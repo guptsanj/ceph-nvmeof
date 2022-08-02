@@ -17,10 +17,10 @@ import socket
 import subprocess
 import grpc
 from concurrent import futures
-import nvme_gw_pb2_grpc as pb2_grpc
-import nvme_gw_pb2 as pb2
-import nvme_gw_config
-from nvme_gw_persistence import OmapPersistentConfig
+from .proto import gateway_pb2_grpc as pb2_grpc
+from .proto import gateway_pb2 as pb2
+from .settings import NVMeGWConfig
+from .config import OmapPersistentConfig
 import argparse
 import json
 from google.protobuf import json_format
@@ -145,7 +145,7 @@ class GWService(pb2_grpc.NVMEGatewayServicer):
             timedout = self.server.wait_for_termination(timeout=1)
             if not timedout:
                 break
-            alive = gw_service.ping()
+            alive = self.ping()
             if not alive:
                 break
 
@@ -654,21 +654,3 @@ class GWService(pb2_grpc.NVMEGatewayServicer):
         except Exception as ex:
             self.logger.error(f"spdk_get_version failed with: \n {ex}")
             return False
-
-
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(prog="python3 ./nvme_gw_server",
-                                     description="Manage NVMe gateways")
-    parser.add_argument(
-        "-c",
-        "--config",
-        default="nvme_gw.config",
-        type=str,
-        help="Path to config file",
-    )
-
-    args = parser.parse_args()
-    nvme_config = nvme_gw_config.NVMeGWConfig(args.config)
-    with GWService(nvme_config) as gw_service:
-        gw_service.serve()
