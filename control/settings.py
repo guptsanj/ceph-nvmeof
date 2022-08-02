@@ -12,36 +12,36 @@ import configparser
 import logging
 
 
-class NVMeGWConfig:
-    def __init__(self, gw_config_filename):
+class Settings:
+    def __init__(self, filename):
         logging.basicConfig(level=logging.DEBUG)
         self.logger = logging.getLogger()
-        if not os.path.isfile(gw_config_filename):
-            self.logger.error(f"Config file {gw_config_filename} not found.")
+        if not os.path.isfile(filename):
+            self.logger.error(f"Settings file {filename} not found.")
             raise FileNotFoundError
-        self.nvme_gw_config = configparser.ConfigParser()
-        self.nvme_gw_config.read(gw_config_filename)
+        self._settings = configparser.ConfigParser()
+        self._settings.read(filename)
 
     def get(self, section, param):
-        return self.nvme_gw_config.get(section, param)
+        return self._settings.get(section, param)
 
     def getboolean(self, section, param):
-        return self.nvme_gw_config.getboolean(section, param)
+        return self._settings.getboolean(section, param)
 
     def getint(self, section, param):
-        return self.nvme_gw_config.getint(section, param)
+        return self._settings.getint(section, param)
 
     def getfloat(self, section, param):
-        return self.nvme_gw_config.getfloat(section, param)
+        return self._settings.getfloat(section, param)
 
     def get_with_default(self, section, param, value):
-        return self.nvme_gw_config.get(section, param, fallback=value)
+        return self._settings.get(section, param, fallback=value)
 
     def getboolean_with_default(self, section, param, value):
-        return self.nvme_gw_config.getboolean(section, param, fallback=value)
+        return self._settings.getboolean(section, param, fallback=value)
 
     def getint_with_default(self, section, param, value):
-        return self.nvme_gw_config.getint(section, param, fallback=value)
+        return self._settings.getint(section, param, fallback=value)
 
     def getfloat_with_default(self, section, param, value):
-        return self.nvme_gw_config.getfloat(section, param, fallback=value)
+        return self._settings.getfloat(section, param, fallback=value)

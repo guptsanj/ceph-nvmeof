@@ -21,7 +21,7 @@ class GatewayService(pb2_grpc.NVMEGatewayServicer):
     Handles configuration of the SPDK NVMEoF target according to client requests.
 
     Instance attributes:
-        nvme_config: Basic gateway parameters
+        settings: Basic gateway parameters
         logger: Logger instance to track server events
         gateway_name: Gateway identifier
         persistent_config: Methods for target configuration persistence
@@ -29,15 +29,15 @@ class GatewayService(pb2_grpc.NVMEGatewayServicer):
         spdk_rpc_client: Client of SPDK RPC server
     """
 
-    def __init__(self, nvme_config, persistent_config, spdk_rpc, spdk_rpc_client):
+    def __init__(self, settings, persistent_config, spdk_rpc, spdk_rpc_client):
 
-        self.logger = nvme_config.logger
-        self.nvme_config = nvme_config
+        self.logger = settings.logger
+        self.settings = settings
         self.persistent_config = persistent_config
         self.spdk_rpc = spdk_rpc
         self.spdk_rpc_client = spdk_rpc_client
 
-        self.gateway_name = self.nvme_config.get("config", "gateway_name")
+        self.gateway_name = self.settings.get("gateway", "name")
         if not self.gateway_name:
             self.gateway_name = socket.gethostname()
 
@@ -343,9 +343,9 @@ class GatewayService(pb2_grpc.NVMEGatewayServicer):
             if not request.gateway_name or \
                request.gateway_name == self.gateway_name:
                 if not request.traddr:
-                    traddr = self.nvme_config.get("config", "gateway_addr")
+                    traddr = self.settings.get("gateway", "addr")
                     if not traddr:
-                        raise Exception("config.gateway_addr option is not set")
+                        raise Exception("gateway.addr option is not set")
                 else:
                     traddr = request.traddr
 
@@ -397,9 +397,9 @@ class GatewayService(pb2_grpc.NVMEGatewayServicer):
             if not request.gateway_name or \
                request.gateway_name == self.gateway_name:
                 if not request.traddr:
-                    traddr = self.nvme_config.get("config", "gateway_addr")
+                    traddr = self.settings.get("gateway", "addr")
                     if not traddr:
-                        raise Exception("config.gateway_addr option is not set")
+                        raise Exception("gateway.addr option is not set")
                 else:
                     traddr = request.traddr
 

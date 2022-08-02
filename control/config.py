@@ -79,7 +79,7 @@ class OmapPersistentConfig(PersistentConfig):
 
     Instance attributes:
         version: Local gateway NVMeoF target configuration version
-        nvme_config: Basic gateway parameters
+        settings: Basic gateway parameters
         logger: Logger instance to track OMAP access events
         spdk_rpc: Module methods for SPDK
         spdk_rpc_client: Client of SPDK RPC server
@@ -94,16 +94,16 @@ class OmapPersistentConfig(PersistentConfig):
     HOST_PREFIX = "host_"
     LISTENER_PREFIX = "listener_"
 
-    def __init__(self, nvme_config):
+    def __init__(self, settings):
         self.version = 1
-        self.nvme_config = nvme_config
-        self.logger = nvme_config.logger
+        self.settings = settings
+        self.logger = settings.logger
 
-        gateway_group = self.nvme_config.get("config", "gateway_group")
+        gateway_group = self.settings.get("gateway", "group")
         self.omap_name = f"nvme.{gateway_group}.config" if gateway_group else "nvme.config"
 
-        ceph_pool = self.nvme_config.get("ceph", "pool")
-        ceph_conf = self.nvme_config.get("ceph", "config_file")
+        ceph_pool = self.settings.get("ceph", "pool")
+        ceph_conf = self.settings.get("ceph", "config_file")
         conn = rados.Rados(conffile=ceph_conf)
         conn.connect()
         self.ioctx = conn.open_ioctx(ceph_pool)

@@ -10,12 +10,12 @@ This daemon runs as root. It provides the ability to export existing RBD images 
 
 		$ make setup
 		
-2. Modify the config file (default main.settings) to reflect the IP/ Port where the server can be reached:
+2. Modify the settings file (default main.settings) to reflect the IP/ Port where the server can be reached:
 
-		gateway_addr = <IP address at which the client can reach the gateway>
-		gateway_port = <port at which the client can reach the gateway>
+		addr = <IP address at which the client can reach the gateway>
+		port = <port at which the client can reach the gateway>
 	
-3. To [enable mTLS](#mtls-configuration-for-testing-purposes) using self signed certificates, edit the config file to set:
+3. To [enable mTLS](#mtls-configuration-for-testing-purposes) using self signed certificates, edit the settings file to set:
 
 		enable_auth = True  # Setting this to False will open an insecure port		
 
@@ -23,7 +23,7 @@ This daemon runs as root. It provides the ability to export existing RBD images 
 		
 	    $ make grpc 
 
-5. SPDK v21.04 is included in this repository. Edit the config file to set:
+5. SPDK v21.04 is included in this repository. Edit the settings file to set:
 
 		spdk_path = <complete path to SPDK parent directory>
 		spdk_tgt = <relative path to SPDK target executable>
@@ -49,7 +49,7 @@ This daemon runs as root. It provides the ability to export existing RBD images 
 
 7. Start the gateway server daemon:
 		
-		$ python3 -m control [-c config_filename]
+		$ python3 -m control [-s settings_file]
 
 
 # CLI Usage
@@ -59,7 +59,7 @@ The CLI tool can be used to initiate a connection to the gateway and run command
 Run the tool with the -h flag to see a list of available commands:
 	
 	$ python3 -m control.cli -h
-	usage: python3 -m control.cli [-h] [-c CONFIG]
+	usage: python3 -m control.cli [-h] [-s SETTINGS_FILE]
 			{create_bdev,delete_bdev,create_subsystem,delete_subsystem,create_namespace,delete_namespace,add_host,delete_host,create_listener,delete_listener,get_subsystems} ...
 
 	CLI to manage NVMe gateways
@@ -68,9 +68,9 @@ Run the tool with the -h flag to see a list of available commands:
 	{create_bdev,delete_bdev,create_subsystem,delete_subsystem,create_namespace,delete_namespace,add_host,delete_host,create_listener,delete_listener,get_subsystems}
 
 	optional arguments:
-	-h, --help            			show this help message and exit
-	-c CONFIG, --config CONFIG
-			      			Path to config file
+    -h, --help            show this help message and exit
+    -s SETTINGS_FILE, --settings_file SETTINGS_FILE
+                          Path to settings file
 
 Example:
 
@@ -100,7 +100,7 @@ For client:
 
   	$ openssl req -x509 -newkey rsa:4096 -nodes -keyout client.key -out client.crt -days 3650 -subj '/CN=client1'
 
-Indicate the location of the keys and certificates in the config file:
+Indicate the location of the keys and certificates in the settings file:
 
 	[mtls]
 

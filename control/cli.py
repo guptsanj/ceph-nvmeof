@@ -12,7 +12,7 @@ import grpc
 import json
 from .proto import gateway_pb2_grpc as pb2_grpc
 from .proto import gateway_pb2 as pb2
-from .settings import NVMeGWConfig
+from .settings import Settings
 
 
 def argument(*name_or_flags, **kwargs):
@@ -34,11 +34,11 @@ class Parser:
             prog="python3 -m control.cli",
             description="CLI to manage NVMe gateways")
         self.parser.add_argument(
-            "-c",
-            "--config",
+            "-s",
+            "--settings_file",
             default="main.settings",
             type=str,
-            help="Path to config file",
+            help="Path to settings file",
         )
 
         self.subparsers = self.parser.add_subparsers(dest="subcommand")
@@ -99,23 +99,23 @@ class GatewayClient:
             raise AttributeError("logger is None. Set with connect method.")
         return self._logger
 
-    def connect(self, nvme_config):
+    def connect(self, settings):
         """ Connects to server and sets stub and logger."""
 
         # Read in configuration parameters
-        host = nvme_config.get("config", "gateway_addr")
-        port = nvme_config.get("config", "gateway_port")
-        enable_auth = nvme_config.getboolean("config", "enable_auth")
+        host = settings.get("gateway", "addr")
+        port = settings.get("gateway", "port")
+        enable_auth = settings.getboolean("gateway", "enable_auth")
         server = "{}:{}".format(host, port)
 
         if enable_auth:
 
             # Create credentials for mutual TLS and a secure channel
-            with open(nvme_config.get("mtls", "client_cert"), "rb") as f:
+            with open(settings.get("mtls", "client_cert"), "rb") as f:
                 client_cert = f.read()
-            with open(nvme_config.get("mtls", "client_key"), "rb") as f:
+            with open(settings.get("mtls", "client_key"), "rb") as f:
                 client_key = f.read()
-            with open(nvme_config.get("mtls", "server_cert"), "rb") as f:
+            with open(settings.get("mtls", "server_cert"), "rb") as f:
                 server_cert = f.read()
 
             credentials = grpc.ssl_channel_credentials(
@@ -132,7 +132,7 @@ class GatewayClient:
         # Bind the client and the server
         self._stub = pb2_grpc.NVMEGatewayStub(channel)
         # Set up logging
-        self._logger = nvme_config.logger
+        self._logger = settings.logger
 
     @cli.cmd([
         argument("-i", "--image", help="RBD image name", required=True),
@@ -340,8 +340,8 @@ class GatewayClient:
 def main(args=None):
     client = GatewayClient()
     parsed_args = client.cli.parser.parse_args(args)
-    nvme_config = NVMeGWConfig(parsed_args.config)
-    client.connect(nvme_config)
+    settings = Settings(parsed_args.settings_file)
+    client.connect(settings)
     if parsed_args.subcommand is None:
         client.cli.parser.print_help()
     else:

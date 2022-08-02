@@ -8,7 +8,7 @@
 #
 
 MODULE := control
-CONFFILE ?= main.settings
+SETTINGS_FILE ?= main.settings
 
 setup: requirements.txt
 	pip3 install -r requirements.txt
@@ -22,7 +22,7 @@ grpc:
 	@sed -E -i 's/^import.*_pb2/from . \0/' ./$(MODULE)/proto/*.py
 
 run:
-	@python3 -m $(MODULE) -c $(CONFFILE)
+	@python3 -m $(MODULE) -s $(SETTINGS_FILE)
 
 test:
 	@pytest
