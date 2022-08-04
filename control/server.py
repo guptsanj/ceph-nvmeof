@@ -17,6 +17,7 @@ import socket
 import subprocess
 import grpc
 import json
+import logging
 from concurrent import futures
 from .proto import gateway_pb2_grpc as pb2_grpc
 from .config import OmapPersistentConfig
@@ -52,7 +53,7 @@ class GatewayServer:
 
     def __init__(self, settings):
 
-        self.logger = settings.logger
+        self.logger = logging.getLogger(__name__)
         self.settings = settings
         self.spdk_process = None
         self.server = None

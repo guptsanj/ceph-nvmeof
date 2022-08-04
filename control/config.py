@@ -8,6 +8,7 @@
 #
 
 import rados
+import logging
 from typing import Dict, Optional
 from abc import ABC, abstractmethod
 from .proto import gateway_pb2 as pb2
@@ -97,7 +98,7 @@ class OmapPersistentConfig(PersistentConfig):
     def __init__(self, settings):
         self.version = 1
         self.settings = settings
-        self.logger = settings.logger
+        self.logger = logging.getLogger(__name__)
 
         gateway_group = self.settings.get("gateway", "group")
         self.omap_name = f"nvme.{gateway_group}.config" if gateway_group else "nvme.config"

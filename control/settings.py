@@ -7,18 +7,11 @@
 #  Authors: anita.shekar@ibm.com, sandy.kaur@ibm.com
 #
 
-import os
 import configparser
-import logging
 
 
 class Settings:
     def __init__(self, filename):
-        logging.basicConfig(level=logging.DEBUG)
-        self.logger = logging.getLogger()
-        if not os.path.isfile(filename):
-            self.logger.error(f"Settings file {filename} not found.")
-            raise FileNotFoundError
         self._settings = configparser.ConfigParser()
         self._settings.read(filename)
 
