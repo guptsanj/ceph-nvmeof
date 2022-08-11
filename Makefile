@@ -24,8 +24,16 @@ grpc:
 run:
 	@python3 -m $(MODULE) -s $(SETTINGS_FILE)
 
-test:
-	@pytest
+.PHONY: test_image
+test_image:
+	docker build --network=host -t test_image:latest -f Dockerfile.test .
 
+.PHONY: tests
+tests: test_image
+	@docker run -it -v $${PWD}:/src -w /src -e HOME=/src \
+		test_image:latest pytest tests | tee pytest.log
+
+test: test_image
+	@pytest
 clean:
 	rm -rf .pytest_cache __pycache__

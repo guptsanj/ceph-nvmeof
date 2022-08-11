@@ -1,0 +1,12 @@
+FROM python:3.7
+
+RUN apt-get -y update && apt-get install -y vim
+
+
+COPY requirements_test.txt /
+
+RUN pip install -r /requirements_test.txt
+
+ENTRYPOINT [""]
+CMD ["/bin/sh"]
+
