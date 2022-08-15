@@ -145,11 +145,10 @@ class OmapPersistentConfigTester(unittest.TestCase):
     @mock.patch('control.config.rados')
     def test_delete_bdev_fail(self, mock_rados):
         settingsMock = Mock()
-        # mock_rados.return_value.WriteOpCtx.__enter__.return_value = Mock()
-        # mock_rados.return_value.WriteOpCtx.__enter__.side_effect = Exception()
-        # mock_rados.WriteOpCtx.set_omap.side_effect = Exception()
         omap = OmapPersistentConfig(settingsMock)
-        omap._delete_key= Mock()
-        omap._delete_key.side_effect = Exception()
+
+        mock_rados.reset_mock()
+        mock_rados.WriteOpCtx.return_value.__enter__.return_value.omap_cmp.side_effect = Exception()
+
         with self.assertRaises(Exception):
             omap.delete_bdev("test1")
