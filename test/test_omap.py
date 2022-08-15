@@ -152,3 +152,77 @@ class OmapPersistentConfigTester(unittest.TestCase):
 
         with self.assertRaises(Exception):
             omap.delete_bdev("test1")
+
+    @mock.patch('control.config.rados')
+    def test_add_namespace_pass(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        omap._write_key = Mock()
+        omap.add_namespace("namespace", "nsid", "value")
+        omap._write_key.assert_called_with("namespace_namespace_nsid", "value")
+
+
+    @mock.patch('control.config.rados')
+    def test_add_namespace_fail(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        # omap._write_key = Mock()
+        mock_rados.reset_mock()
+        mock_rados.WriteOpCtx.return_value.__enter__.return_value.omap_cmp.side_effect = Exception()
+        with self.assertRaises(Exception):
+            omap.add_namespace("namespace", "nsid", "value")
+
+    @mock.patch('control.config.rados')
+    def test_delete_namespace_pass(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        omap._delete_key = Mock()
+        omap.delete_namespace("namespace", "nsid")
+        omap._delete_key.assert_called_with("namespace_namespace_nsid")
+
+
+    @mock.patch('control.config.rados')
+    def test_delete_namespace_fail(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        mock_rados.reset_mock()
+        mock_rados.WriteOpCtx.return_value.__enter__.return_value.omap_cmp.side_effect = Exception()
+        with self.assertRaises(Exception):
+            omap.delete_namespace("namespace", "nsid")
+
+
+    @mock.patch('control.config.rados')
+    def test_add_subsystem_pass(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        omap._write_key = Mock()
+        omap.add_subsystem("namespace", "nsid")
+        omap._write_key.assert_called_with("subsystem_namespace", "nsid")
+
+
+    @mock.patch('control.config.rados')
+    def test_delete_subsystem_fail(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        mock_rados.reset_mock()
+        mock_rados.WriteOpCtx.return_value.__enter__.return_value.omap_cmp.side_effect = Exception()
+        with self.assertRaises(Exception):
+            omap.delete_subsystem("namespace", "nsid")
+
+
+    @mock.patch('control.config.rados')
+    def test_add_host_pass(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        omap._write_key = Mock()
+        omap.add_host("subsystem", "host_nqn", "value")
+        omap._write_key.assert_called_with("host_subsystem_host_nqn", "value")
+
+    @mock.patch('control.config.rados')
+    def test_add_host_fail(self, mock_rados):
+        settingsMock = Mock()
+        omap = OmapPersistentConfig(settingsMock)
+        mock_rados.reset_mock()
+        mock_rados.WriteOpCtx.return_value.__enter__.return_value.omap_cmp.side_effect = Exception()
+        with self.assertRaises(Exception):
+            omap.delete_host("namespace", "nsid")
