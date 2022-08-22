@@ -14,7 +14,7 @@ import logging
 from google.protobuf import json_format
 from .proto import gateway_pb2 as pb2
 from .proto import gateway_pb2_grpc as pb2_grpc
-
+import pdb
 
 class GatewayService(pb2_grpc.NVMEGatewayServicer):
     """Implements gateway service interface.
@@ -44,11 +44,11 @@ class GatewayService(pb2_grpc.NVMEGatewayServicer):
 
     def bdev_rbd_create(self, request, context=None):
         """Creates bdev from a given RBD image."""
-        self.logger.info({
-            f"Received request to create bdev {request.bdev_name} from",
-            f" {request.ceph_pool_name}/{request.rbd_name}",
-            f" with block size {request.block_size}",
-        })
+        #self.logger.info({
+        #    f"Received request to create bdev {request.bdev_name} from",
+        #    f" {request.ceph_pool_name}/{request.rbd_name}",
+        #    f" with block size {request.block_size}",
+        #})
         try:
             bdev_name = self.spdk_rpc.bdev.bdev_rbd_create(
                 self.spdk_rpc_client,

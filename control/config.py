@@ -13,7 +13,7 @@ from typing import Dict, Optional
 from abc import ABC, abstractmethod
 from .proto import gateway_pb2 as pb2
 from google.protobuf import json_format
-
+import pdb
 
 class PersistentConfig(ABC):
     """Persists gateway NVMeoF target configuration."""
@@ -108,7 +108,6 @@ class OmapPersistentConfig(PersistentConfig):
         conn = rados.Rados(conffile=ceph_conf)
         conn.connect()
         self.ioctx = conn.open_ioctx(ceph_pool)
-
         try:
             # Create a new gateway persistence OMAP object
             with rados.WriteOpCtx() as write_op:
@@ -119,11 +118,11 @@ class OmapPersistentConfig(PersistentConfig):
                 self.ioctx.operate_write_op(write_op, self.omap_name)
                 self.logger.info(
                     f"First gateway: created object {self.omap_name}")
-        except rados.ObjectExists:
-            self.logger.info(f"{self.omap_name} omap object already exists.")
         except Exception as ex:
             self.logger.error(f"Unable to write to omap: {ex}. Exiting!")
             raise
+        except rados.ObjectExists:
+            self.logger.info(f"{self.omap_name} omap object already exists.")
 
     def _write_key(self, key: str, val: str):
         """Writes key and value to the persistent config."""
@@ -193,7 +192,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _restore_namespaces(self, omap_dict, callback):
         """Restores a namespace from the persistent config."""
-
         for (key, val) in omap_dict.items():
             if key.startswith(self.NAMESPACE_PREFIX):
                 # Get NSID from end of key
@@ -222,7 +220,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _restore_subsystems(self, omap_dict, callback):
         """Restores subsystems from the persistent config."""
-
         for (key, val) in omap_dict.items():
             if key.startswith(self.SUBSYSTEM_PREFIX):
                 req = json_format.Parse(val, pb2.subsystem_create_req())
@@ -240,7 +237,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _restore_hosts(self, omap_dict, callback):
         """Restore hosts from the persistent config."""
-
         for (key, val) in omap_dict.items():
             if key.startswith(self.HOST_PREFIX):
                 req = json_format.Parse(val, pb2.subsystem_add_host_req())
@@ -262,7 +258,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _restore_listeners(self, omap_dict, callback):
         """Restores listeners from the persistent config."""
-
         for (key, val) in omap_dict.items():
             if key.startswith(self.LISTENER_PREFIX):
                 req = json_format.Parse(val, pb2.subsystem_add_listener_req())
@@ -270,7 +265,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _read_key(self, key) -> Optional[str]:
         """Reads single key from persistent config and returns its value."""
-
         with rados.ReadOpCtx() as read_op:
             iter, _ = self.ioctx.get_omap_vals_by_keys(read_op, (key,))
             self.ioctx.operate_read_op(read_op, self.omap_name)
@@ -283,7 +277,6 @@ class OmapPersistentConfig(PersistentConfig):
 
     def _read_all(self) -> Dict[str, str]:
         """Reads persistent config and returns dict of all keys and values."""
-
         with rados.ReadOpCtx() as read_op:
             iter, _ = self.ioctx.get_omap_vals(read_op, "", "", -1)
             self.ioctx.operate_read_op(read_op, self.omap_name)
@@ -292,11 +285,10 @@ class OmapPersistentConfig(PersistentConfig):
 
     def delete_config(self):
         """Deletes OMAP object."""
-
         try:
             self.ioctx.remove_object(self.omap_name)
             self.logger.info(f"Object {self.omap_name} deleted.")
-        except rados.ObjectNotFound:
+        except rados.ObjectNotFound as ex:
             self.logger.info(f"Object {self.omap_name} not found.")
 
     def restore(self, callbacks):
