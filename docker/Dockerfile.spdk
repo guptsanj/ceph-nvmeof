@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.2
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi9/ubi
 
 # Generic args
 ARG spdk_version
@@ -15,15 +15,12 @@ ENV spdk_version=$spdk_version
 COPY ./dnf.conf /etc/dnf/dnf.conf
 COPY ./docker/ceph.repo /etc/yum.repos.d/ceph.repo
 COPY ./docker/centos.repo /etc/yum.repos.d/centos.repo
-
+   
 RUN \
    --mount=type=cache,target=/var/cache/dnf \
    --mount=type=cache,target=/var/lib/dnf \
    mkdir -p /docker \
    && sed -i "s/CEPH_VERSION/${CEPH_VERSION}/g" /etc/yum.repos.d/ceph.repo \
-   && dnf --setopt=cachedir=/var/cache/dnf --config=/etc/dnf/dnf.conf module reset ruby -y \
-   && dnf --setopt=cachedir=/var/cache/dnf --config=/etc/dnf/dnf.conf module enable ruby:2.6 -y \
-   && dnf --setopt=cachedir=/var/cache/dnf --config=/etc/dnf/dnf.conf module update ruby:2.6 -y  \
    && dnf --setopt=cachedir=/var/cache/dnf --config=/etc/dnf/dnf.conf install -y \
       rpm-build \
       librbd-devel \
@@ -31,6 +28,7 @@ RUN \
       sudo \
       ninja-build \
       procps \
+      ruby \
       rubygems \
       ruby-devel \
    && gem install rake \

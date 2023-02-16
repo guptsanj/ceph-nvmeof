@@ -1,7 +1,6 @@
 [ceph]
 name=Ceph packages for x86_64
-# baseurl=https://download.ceph.com/rpm-17.2.5/el8/x86_64
-baseurl=https://download.ceph.com/rpm-CEPH_VERSION/el8/x86_64
+baseurl=https://download.ceph.com/rpm-CEPH_VERSION/el9/x86_64
 enabled=1
 priority=2
 gpgcheck=1

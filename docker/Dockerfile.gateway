@@ -2,7 +2,7 @@
 
 ARG spdk_version
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal as python_builder
+FROM registry.access.redhat.com/ubi9/ubi-minimal as python_builder
 
 RUN mkdir -p /build/proto/generated
 
@@ -15,7 +15,8 @@ RUN --mount=type=cache,target=/root/.cache,sharing=locked \
     --mount=type=cache,target=/var/lib/dnf,sharing=locked \
       set -ex \
       && microdnf --setopt=cachedir=/var/cache/yum --config=/etc/dnf/dnf.conf install -y \
-      python36 \
+      python39 \
+      python3-pip \
       && pip3 install --upgrade pip \
       && pip install -r /build/requirements.txt \
       &&  python3 -m grpc_tools.protoc \
@@ -28,7 +29,7 @@ RUN --mount=type=cache,target=/root/.cache,sharing=locked \
 
 FROM spdk:${spdk_version:-latest} as spdk
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM registry.access.redhat.com/ubi9/ubi-minimal
 
 ARG CEPH_VERSION
 
@@ -55,9 +56,9 @@ RUN --mount=type=cache,from=python_builder,source=/var/cache/yum,target=/var/cac
     --mount=type=cache,from=python_builder,source=/var/lib/dnf,target=/var/lib/dnf \
     set -ex \
     && ls -Rl /var/cache/yum > /var/cache/yum/rpms.log || true \
-    && microdnf --disablerepo=centos8-base --setopt=cachedir=/var/cache/yum --config=/etc/dnf/dnf.conf update -y \
-    && microdnf --enablerepo=centos8-base --setopt=cachedir=/var/cache/yum --config=/etc/dnf/dnf.conf install -y \
-    python36 \
+    && microdnf --disablerepo=centos9-base --setopt=cachedir=/var/cache/yum --config=/etc/dnf/dnf.conf update -y \
+    && microdnf --enablerepo=centos9-base --setopt=cachedir=/var/cache/yum --config=/etc/dnf/dnf.conf install -y \
+    python39 \
     python3-pip \
     librbd-devel-2:${CEPH_VERSION} \
     librados-devel-2:${CEPH_VERSION} \

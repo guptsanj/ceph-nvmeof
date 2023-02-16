@@ -29,7 +29,6 @@ endef
 .PHONY: setup
 setup:
 	@echo "dir: $(curr_dir)/spdk"
-	cd $(curr_dir)/spdk && \
 	git submodule update --init --recursive
 
 ## grpc: Compile grpc code
